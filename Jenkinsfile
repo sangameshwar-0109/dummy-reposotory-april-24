@@ -12,7 +12,7 @@ pipeline {
     }
     stage('build') {
         steps {
-            sh "mvn $(parms.MAVEN_GOAL)"
+            sh "mvn $(params.MAVEN_GOAL)"
         }
     }
 
