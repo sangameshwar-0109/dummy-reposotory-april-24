@@ -1,19 +1,41 @@
 pipeline {
     agent { label 'spc' }
     parameters {
-        choice(name: 'MAVEN_GOAL' , choices [ 'package', 'clean package' ], description: 'this is maven goal')
-
+        choice(name: 'MAVEN_GOAL', choices: ['package', 'clean package'], description: 'This is the Maven goal')
     }
     stages {
         stage('git') {
-            git url: 'https://github.com/sangameshwar-0109/dummy-reposotory-april-24.git',
-                branch: 'main' 
+            steps {
+                git url: 'https://github.com/sangameshwar-0109/dummy-reposotory-april-24.git',
+                    branch: 'main'
+            }
+        }
+        stage('build') {
+            steps {
+                mail bcc: '', body: 'Build started', cc: '', from: '', replyTo: '',
+                    subject: 'Build started', to: 'all@learningthoughts.io'
+                sh "mvn ${params.MAVEN_GOAL}"
+                junit testResults: '**/surefire-reports/*.xml'
+                archiveArtifacts artifacts: '**/target/spring-petclinic-*.jar'
+                mail bcc: '', body: 'Build completed', cc: '', from: '', replyTo: '',
+                    subject: 'Build completed', to: 'all@learningthoughts.io'
+            }
+            post {
+                failure {
+                    mail bcc: 'all@learningthoughts.io',
+                        from: 'jenkins@learningthoughts.io',
+                        to: "dev@learningthoughts.io",
+                        subject: "Build of ${JOB_BASE_NAME} with Build Id ${BUILD_ID} has failed",
+                        body: "Refer to ${RUN_DISPLAY_URL} for more info"
+                }
+                success {
+                    mail bcc: 'all@learningthoughts.io',
+                        from: 'jenkins@learningthoughts.io',
+                        to: "dev@learningthoughts.io",
+                        subject: "Build of ${JOB_BASE_NAME} with Build Id ${BUILD_ID} was successful",
+                        body: "Refer to ${RUN_DISPLAY_URL} for more info"
+                }
+            }
         }
     }
-    stage('build') {
-        steps {
-            sh "mvn $(parms.MAVEN_GOAL)"
-        }
-    }
-
 }
