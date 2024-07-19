@@ -1,7 +1,7 @@
 pipeline {
     agent { label 'spc' }
     parameters {
-        choice(name: 'MAVEN_GOAL' choices [ 'package', 'clean package' ], description: 'this is maven goal')
+        choice(name: 'MAVEN_GOAL', choices [ 'package', 'clean package' ], description: 'this is maven goal')
 
     }
     stages {
